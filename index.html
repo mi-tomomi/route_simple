@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>通学時間可視化アプリ</title>
+  <link rel="stylesheet" href="style.css?v=station-controls-unframed-1">
+</head>
+<body>
+<main class="page-container">
+  <div class="map-container">
+    <!-- Figmaの自作線だけを表示。下敷きの参考画像は含めません。 -->
+    <div class="map-region">
+      <img id="map-lines" src="routes.svg" alt="東京の路線図">
+      <svg class="route-layer" viewBox="0 0 1352 1080" aria-hidden="true"><g id="active-route"></g></svg>
+      <div class="station-layer" aria-label="路線図の駅"></div>
+    </div>
+    <aside class="info-panel" aria-label="所要時間">
+      <div class="destination-selector" role="group" aria-label="最寄り駅">
+        <span>最寄り駅</span>
+        <button type="button" class="destination-button is-selected" data-destination="hakusan" aria-pressed="true">白山</button>
+        <button type="button" class="destination-button" data-destination="honkomagome" aria-pressed="false">本駒込</button>
+      </div>
+      <section id="travel-info" aria-live="polite">
+        <p class="origin-line"><strong id="travel-station">池袋</strong><span>から</span></p>
+        <p class="destination-line"><strong id="travel-destination">白山</strong><span>まで</span></p>
+        <p class="time-line" aria-label="所要時間">
+          <span class="time-approx">約</span>
+          <span id="travel-time-number">16</span>
+          <span class="time-minutes">分</span>
+        </p>
+        <p id="travel-status"></p>
+        <div class="details">
+          <span class="transfer-label">乗換</span><span id="transfer-count">1</span><span class="transfer-unit">回</span>
+          <p id="travel-route" class="screen-reader-only"></p>
+        </div>
+      </section>
+      <div class="station-picker" hidden><label for="station-select">出発駅を選ぶ</label><select id="station-select"></select></div>
+    </aside>
+  </div>
+</main>
+<script src="map-data.js"></script>
+<script src="script.js?v=station-controls-match-1"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+*{box-sizing:border-box}body{margin:0;background:#f3f3f3;color:#111;font-family:"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif}.page-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}.map-container{position:relative;container-type:size;width:min(100%,calc((100vh - 32px)*16/9));aspect-ratio:16/9;background:#fff;overflow:hidden}.map-region{position:absolute;left:0;top:0;width:70.416667%;height:100%;overflow:hidden}#map-lines{position:absolute;display:block}.route-layer,.station-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.route-layer{z-index:2}.station-layer{z-index:3}.station-label{position:absolute;display:flex;align-items:center;justify-content:center;padding:0;border:.185185cqh solid #000;background:white;color:#000;font:400 1.666667cqh/1.2 "Inter","Hiragino Sans",sans-serif;white-space:nowrap;pointer-events:auto}.station-label.destination{font-weight:700}.station-label.is-selected{outline:.28cqh solid #007c86;outline-offset:.2cqh}.station-label[data-registered="true"]{cursor:pointer}.station-label:hover{background:#edfafa}.station-label:focus-visible,button:focus-visible,select:focus-visible{outline:.3cqh solid #007c86;outline-offset:.3cqh}.route-path{fill:none;stroke:#00efff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 3px white) drop-shadow(0 0 5px #00bddd)}.info-panel{position:absolute;left:70.416667%;top:0;right:0;bottom:0;background:#fbf8f5;padding:0 2.2cqh}.destination-selector{position:absolute;top:1.4%;right:6%;display:flex;gap:.55cqh;align-items:center;font-size:1.65cqh}.destination-button{padding:.6cqh 1cqh;border:.12cqh solid #777;border-radius:.55cqh;background:#fff;font:700 1.55cqh sans-serif;cursor:pointer}.destination-button.is-selected{background:#007c86;border-color:#007c86;color:#fff}.origin-line,.destination-line{position:absolute;left:6.5%;right:3%;margin:0;white-space:nowrap}.origin-line{top:9.5%;display:flex;align-items:baseline;gap:1.4cqh}.origin-line strong{font-size:11.1111cqh;line-height:1.2}.origin-line span{font-size:7.4074cqh}.destination-line{top:24%;font-size:7.4074cqh;line-height:1.4}.time-line{position:absolute;left:3%;right:3%;top:37%;height:30%;display:flex;align-items:baseline;justify-content:center;gap:1cqh;margin:0}.time-line strong{font-size:27.7778cqh;line-height:1;letter-spacing:-.15cqh}.unit{font-size:5.5556cqh}#travel-status{position:absolute;top:64%;left:7%;right:5%;margin:0;font-size:1.85cqh;color:#555}.details{position:absolute;top:69.4444%;left:7%;right:7%;border-top:1px solid #333;padding-top:2.5cqh}#travel-route{font-size:2.3cqh;line-height:1.7;margin:0}.time-note{font-size:1.45cqh;color:#555;line-height:1.7}.station-picker{position:absolute;left:7%;right:7%;bottom:3%;display:grid;gap:.65cqh;font-size:1.6cqh}.station-picker select{min-width:0;width:100%;font:inherit;padding:.85cqh;border:1px solid #888;border-radius:.5cqh;background:white}.time-line.is-unregistered .unit{visibility:hidden}.time-line.is-unregistered strong{font-size:18cqh}
+
+/* Figma 1:22 の1920×1080座標。目的地セレクターは既存のまま。 */
+.info-panel{padding:0;font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif}
+.origin-line{left:7.777778cqh;right:auto;top:10.185185cqh;height:11.111111cqh;gap:2.222222cqh;line-height:11.111111cqh}
+.origin-line strong{font-size:11.111111cqh;line-height:11.111111cqh;font-weight:700}
+.origin-line span{font-size:7.407407cqh;font-weight:500;line-height:11.111111cqh}
+.destination-line{left:7.777778cqh;right:auto;top:21.296296cqh;font-size:7.407407cqh;line-height:11.111111cqh;font-weight:500}
+.destination-line strong{font-weight:500}
+/* 見本画像の字形位置を再現。時間の字形はFigmaからのSVG。 */
+.time-line{inset:0;margin:0;height:100%;display:block}
+.time-line img{position:absolute;display:block;max-width:none}
+.time-approx-art{left:5.763889cqh;top:55.155556cqh;width:6.851852cqh;height:6.851852cqh}
+
+.time-minutes-art{left:40.224074cqh;top:55.275926cqh;width:7.129630cqh;height:6.759259cqh}
+.time-line strong,.time-line .unit{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.time-line.is-unregistered img{display:none}
+.time-line.is-unregistered strong{left:24.555556cqh;top:41.966667cqh;width:auto;height:auto;overflow:visible;clip-path:none;transform:translateX(-50%);font-size:18cqh;line-height:1}
+.details{inset:0;border:0;padding:0;pointer-events:none}
+.details::before{content:"";position:absolute;left:3.981481cqh;top:69.444444cqh;width:43.425926cqh;border-top:1px solid #000}
+.transfer-label,.transfer-unit,.transfer-station-label,#transfer-count,#transfer-stations{position:absolute;font-weight:400;line-height:normal;white-space:nowrap}
+.transfer-label{left:9.722222cqh;top:76.574074cqh;font-size:4.629630cqh}
+#transfer-count{left:21.759259cqh;top:73.888889cqh;font-size:7.407407cqh}
+.transfer-unit{left:27.592593cqh;top:77.777778cqh;font-size:3.703704cqh}
+.transfer-station-label{left:9.722222cqh;top:85.648148cqh;font-size:4.629630cqh}
+#transfer-stations{left:27.592593cqh;top:85.648148cqh;font-size:4.629630cqh}
+.station-picker[hidden]{display:none}
+.screen-reader-only,#travel-route{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#travel-status{top:65%;font-size:1.5cqh}
+
+/* 数字は画像ではなく、同梱フォントでデータの値を直接表示する。 */
+@font-face{font-family:"CommuteTime";src:url("fonts/NotoSans-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:block}
+.time-number-live{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#travel-time-number{font-family:"CommuteTime",sans-serif;font-size:298.2px;font-weight:700;letter-spacing:0;fill:#000;font-kerning:none;font-variant-numeric:normal}
+
+/* 強調経路は白い縁、ネオン本体、流れる光粒の3層で表示する。 */
+.route-path-halo,.route-path,.route-path-sparkle{fill:none;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.route-path-halo{stroke:#172133;stroke-width:21;opacity:.9;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px rgba(23,33,51,.55));animation:routeHaloReveal .65s ease-out both}
+.route-path{stroke:#dcff00;stroke-width:11;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px #dcff00) drop-shadow(0 0 15px #8cff00);animation:routeNeonFlash .9s ease-out both}
+.route-path-sparkle{stroke:#fff;stroke-width:3.5;stroke-dasharray:1 7;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px #dfff66);animation:routeSparkleOnce 1.15s ease-out both}
+@keyframes routeHaloReveal{from{opacity:.35}to{opacity:.9}}
+@keyframes routeNeonFlash{0%{stroke:#fbffd9;stroke-width:15;filter:drop-shadow(0 0 7px #fff) drop-shadow(0 0 18px #dcff00) drop-shadow(0 0 30px #8cff00)}100%{stroke:#dcff00;stroke-width:11;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px #dcff00) drop-shadow(0 0 15px #8cff00)}}
+@keyframes routeSparkleOnce{0%{opacity:0;stroke-dashoffset:0}15%{opacity:1}72%{opacity:1}100%{opacity:0;stroke-dashoffset:-24}}
+.map-region #map-lines{transition:filter .28s ease,opacity .28s ease}
+.map-region.has-active-route #map-lines{filter:saturate(.68) contrast(.93) brightness(1.07);opacity:.8}
+.route-marker{pointer-events:none}
+.route-marker-ring{fill:#fff;stroke:#dcff00;stroke-width:5;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px #dcff00) drop-shadow(0 0 13px #8cff00);animation:routeMarkerPop .72s cubic-bezier(.2,1.7,.35,1) both}
+.route-marker-core{fill:#171717;stroke:#fff;stroke-width:2;filter:drop-shadow(0 0 4px #dcff00);animation:routeMarkerCore .72s ease-out both}
+.route-marker-origin .route-marker-ring{stroke:#35f2ff;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px #35f2ff) drop-shadow(0 0 13px #00aeea)}
+.route-marker-transfer .route-marker-ring{stroke:#fff200;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px #fff200) drop-shadow(0 0 13px #ffb800)}
+.route-marker-destination .route-marker-ring{stroke:#dcff00;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 8px #dcff00) drop-shadow(0 0 13px #68e000)}
+@keyframes routeMarkerPop{0%{opacity:0;transform:scale(.2)}65%{opacity:1;transform:scale(1.28)}100%{opacity:1;transform:scale(1)}}
+@keyframes routeMarkerCore{0%{opacity:0;transform:scale(0)}55%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.route-path-halo,.route-path,.route-path-sparkle,.route-marker-ring,.route-marker-core{animation:none}}
+
+/* 目的地は小さな画面でも確実に押せ、地図上と右上で選択状態を共有する。 */
+.destination-selector{z-index:5}
+.destination-button{min-width:5.4cqh;min-height:3.6cqh;touch-action:manipulation}
+.station-label.destination{touch-action:manipulation}
+.station-label.destination.is-selected{background:#e8ffff;outline-color:#00a9b8;box-shadow:0 0 .7cqh rgba(0,196,214,.75)}
+
+/* Figma node 1:22（1920×1080）の右側パネル。 */
+.origin-line{left:6.666667cqh;top:16.481481cqh;height:11.111111cqh;gap:0;line-height:11.111111cqh}
+.origin-line strong{font-size:11.111111cqh;line-height:11.111111cqh;letter-spacing:.2em;margin-right:-.2em}
+.origin-line span{font-size:7.407407cqh;line-height:11.111111cqh}
+.destination-line{left:6.666667cqh;top:27.592593cqh;font-size:7.407407cqh;line-height:11.111111cqh}
+.time-approx-art{left:5.462963cqh;top:58.981481cqh;width:6.851852cqh;height:6.851852cqh}
+.time-minutes-art{left:40cqh;top:58.981481cqh;width:7.129630cqh;height:6.759259cqh}
+.details::before{left:4.537037cqh;top:75.925926cqh;width:43.425926cqh;border-color:#8c8c8c}
+.transfer-label{left:13.518519cqh;top:83.703704cqh;font-size:5cqh}
+#transfer-count{left:26.574074cqh;top:80.185185cqh;font-size:8.333333cqh}
+.transfer-unit{left:34.444444cqh;top:84.166667cqh;font-size:4.629630cqh}
+
+/* Figmaのテキストを画像化せず、同じ書体・サイズ・座標で直接描画する。 */
+.origin-line{display:flex;align-items:baseline;gap:2.222222cqh}
+.origin-line strong{letter-spacing:0;margin:0;font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;font-weight:700}
+.origin-line span,.destination-line,.destination-line strong{font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;font-weight:500}
+.time-line{position:absolute;inset:0;height:100%;margin:0;display:block;font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;color:#000;white-space:nowrap}
+.time-approx,.time-minutes,#travel-time-number{position:absolute;display:block;margin:0;line-height:normal}
+.time-approx{left:4.537037cqh;top:59.259259cqh;font-size:6.481481cqh;font-weight:400;line-height:8.796296cqh}
+#travel-time-number{left:11.111111cqh;top:50.648148cqh;font-family:"Damascus","Helvetica","Arial",sans-serif;font-size:26.851852cqh;font-weight:700;line-height:27.407407cqh;letter-spacing:.833333cqh;font-kerning:none;font-variant-numeric:normal}
+#travel-time-number.is-single-digit{left:26.447222cqh;transform:translateX(-50%);font-size:26.851852cqh;letter-spacing:0}
+#travel-time-number.is-wide-number{left:11.111111cqh;top:50.648148cqh;transform:none;font-size:26.851852cqh;letter-spacing:.833333cqh}
+.time-minutes{left:41.481481cqh;top:59.240741cqh;font-size:6.481481cqh;font-weight:400;line-height:8.796296cqh}
+.time-line.is-unregistered .time-approx,.time-line.is-unregistered .time-minutes{display:none}
+
+
+.station-label[data-station-id="hakusan"] { margin-left: -.601852cqh; }
+.station-label[data-station-id="honkomagome"] { margin-left: .601852cqh; }
+
+/* 駅ラベルと最寄り駅選択の寸法をダークネオン版に合わせる。 */
+.station-label {
+  transform: scale(.96);
+  transform-origin: center;
+  padding: 0 .55cqh;
+  border-width: .08cqh;
+  border-radius: .62cqh;
+  font-size: 1.42cqh;
+  font-weight: 650;
+  letter-spacing: .015em;
+  text-align: center;
+}
+.station-label[data-station-id="hakusan"],
+.station-label[data-station-id="honkomagome"] {
+  transform: scale(1.08);
+  z-index: 2;
+}
+.station-label.destination[data-station-id="honkomagome"] {
+  left: var(--station-center-x) !important;
+  width: max-content !important;
+  min-width: var(--station-width);
+  padding: 0 1cqh;
+  transform: translateX(-50%) scale(1.08);
+}
+.station-label.is-selected {
+  transform: scale(1.08);
+  z-index: 2;
+  font-size: 2.037037cqh !important;
+}
+.station-label.is-selected:not(.destination) {
+  left: var(--station-center-x) !important;
+  width: max-content !important;
+  min-width: var(--station-width);
+  height: auto !important;
+  min-height: 3.148148cqh;
+  padding: .48cqh .9cqh;
+  transform: translateX(-50%) scale(1.08);
+}
+.destination-selector {
+  top: 2.2%;
+  right: 5.2%;
+  gap: .55cqh;
+  padding: 0;
+}
+.destination-selector > span {
+  position: absolute;
+  right: calc(100% + 1.15cqh);
+  top: 50%;
+  transform: translateY(-50%);
+  font: 600 1.7cqh/1 "Noto Sans JP", "Hiragino Sans", sans-serif;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.destination-button {
+  min-width: 10.2cqh;
+  min-height: 5.2cqh;
+  padding: .8cqh 1.4cqh;
+  border: 0;
+  border-radius: 2.6cqh;
+  font: 700 2cqh/1 "Noto Sans JP", "Hiragino Sans", sans-serif;
+}
+.destination-button[data-destination="honkomagome"],
+.destination-button[data-destination-id="honkomagome"] {
+  min-width: 12.4cqh;
+  padding-right: 1.8cqh;
+  padding-left: 1.8cqh;
+}
+.destination-selector { border: 0; background: transparent; box-shadow: none; }
+.destination-selector > span { color: #111; }
+.destination-button:not(.is-selected) { background: transparent; color: #111; box-shadow: inset 0 0 0 .12cqh #777; }
+.destination-button:not(.is-selected):hover { background: #edfafa; box-shadow: inset 0 0 0 .12cqh #007c86; }
+.destination-button.is-selected { background: #007c86; color: #fff; box-shadow: none; }
