@@ -16,6 +16,38 @@ const position = name => {
 
 // 経路ごとに登録した路線と乗換地点をもとに、強調する経路を生成する。
 const findRoutePath=window.RouteEngine.createRouteFinder({...data,stations:data.stations.map(s=>({...s,id:s.name}))});
+// 駅名が2つ並ぶ、歩いて乗り換える駅の組。
+const walkingTransfers=new Set(['板橋・新板橋','後楽園・春日','春日・後楽園','小川町・淡路町','東日本橋・馬喰横山','馬喰町・馬喰横山','有楽町・日比谷','田町・三田']);
+const plainStationName=name=>name.replace('ツ','');
+function transferStationNames(journey){
+ if(!journey.transfers||!journey.transferStations)return [];
+ const names=journey.transferStations.split('・');
+ const groups=[];
+ for(let i=0;i<names.length;i++){
+  const pair=`${names[i]}・${names[i+1]}`;
+  if(walkingTransfers.has(pair)){groups.push(pair);i++;}
+  else groups.push(names[i]);
+ }
+ return groups;
+}
+// 乗換駅名を、ほかの駅ラベルや印と重ならない向きに置く。
+function placeTransferLabel(label){
+ const bounds=mapRegion.getBoundingClientRect();
+ const others=[...stationLayer.querySelectorAll('.station-label'),...routeGroup.querySelectorAll('.route-marker')].filter(o=>o!==label).map(o=>o.getBoundingClientRect());
+ let best={side:'above',gap:'1.7cqh',overlap:Infinity};
+ for(const gap of ['1.7cqh','3.4cqh','5.1cqh','6.8cqh']){
+  label.style.setProperty('--transfer-gap',gap);
+  for(const side of ['above','below','right','left','above-right','above-left','below-right','below-left']){
+   label.dataset.side=side;
+   const r=label.getBoundingClientRect();
+   if(r.left<bounds.left||r.right>bounds.right||r.top<bounds.top||r.bottom>bounds.bottom)continue;
+   const overlap=others.reduce((sum,o)=>sum+Math.max(0,Math.min(r.right,o.right)-Math.max(r.left,o.left))*Math.max(0,Math.min(r.bottom,o.bottom)-Math.max(r.top,o.top)),0);
+   if(overlap<best.overlap)best={side,gap,overlap};
+  }
+ }
+ label.dataset.side=best.side;
+ label.style.setProperty('--transfer-gap',best.gap);
+}
 // 駅ラベルの位置を、路線図の座標（1352×1080）で返す。
 function stationLabelBoxes(){
  const bounds=mapRegion.getBoundingClientRect();
@@ -54,6 +86,9 @@ function updateTravelDisplay(){
   b.classList.toggle('is-selected',active);b.setAttribute('aria-pressed',String(active));
  });
  routeGroup.replaceChildren();
+ stationLayer.querySelectorAll('.transfer-name').forEach(label=>label.remove());
+ stationLayer.querySelectorAll('.is-transfer').forEach(label=>label.classList.remove('is-transfer'));
+ const transferMarks=[];
  const routePoints=journey?findRoutePath(selectedStationName,destinationNames[selectedDestinationId],journey.lines,journey.transferPoints,journey.originPoint):[];
  if(routePoints.length>1){
   const pathData=routePoints.map((p,i)=>`${i?'L':'M'}${p.x} ${p.y}`).join(' ');
@@ -63,18 +98,31 @@ function updateTravelDisplay(){
    path.setAttribute('pathLength','100');
    routeGroup.appendChild(path);
   }
-  const labelBoxes=stationLabelBoxes();
-  const markerPoints=[{...routePoints[0],kind:'origin'}];
+  // 乗換地点を経路の順に集める。
   for(let i=1;i<routePoints.length;i++){
    if(routePoints[i].transferFromPrevious){
-    markerPoints.push(markClearOfLabels({x:(routePoints[i-1].x+routePoints[i].x)/2,y:(routePoints[i-1].y+routePoints[i].y)/2,kind:'transfer',order:i},routePoints,labelBoxes));
+    transferMarks.push({x:(routePoints[i-1].x+routePoints[i].x)/2,y:(routePoints[i-1].y+routePoints[i].y)/2,kind:'transfer',order:i});
    }
   }
   for(const [x,y] of journey.extraTransferPoints??[]){
    const distanceTo=p=>Math.hypot(p.x-x,p.y-y);
    const order=routePoints.reduce((nearest,p,i)=>distanceTo(p)<distanceTo(routePoints[nearest])?i:nearest,0);
-   markerPoints.push(markClearOfLabels({x,y,kind:'transfer',order},routePoints,labelBoxes));
+   transferMarks.push({x,y,kind:'transfer',order});
   }
+  transferMarks.sort((a,b)=>a.order-b.order);
+  // 地図にある乗換駅はラベルを強調する。大きさが変わるので、印の位置を決める前に行う。
+  const transferNames=transferStationNames(journey);
+  if(transferNames.length===transferMarks.length){
+   transferMarks.forEach((mark,i)=>{
+    const names=transferNames[i].split('・').map(plainStationName);
+    const existing=data.stations.find(s=>names.includes(plainStationName(s.name)));
+    if(existing)[...stationLayer.querySelectorAll('.station-label')].find(b=>b.dataset.name===existing.name).classList.add('is-transfer');
+    else mark.name=transferNames[i];
+   });
+  }
+  const labelBoxes=stationLabelBoxes();
+  for(const mark of transferMarks)Object.assign(mark,markClearOfLabels(mark,routePoints,labelBoxes));
+  const markerPoints=[{...routePoints[0],kind:'origin'},...transferMarks];
   markerPoints.push({...routePoints.at(-1),kind:'destination'});
   for(const point of markerPoints){
    const marker=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -87,6 +135,16 @@ function updateTravelDisplay(){
    }
    routeGroup.appendChild(marker);
   }
+ }
+ // 地図にない乗換駅は、印のそばに駅名のラベルを足す。
+ for(const {x,y,name} of transferMarks){
+  if(!name)continue;
+  const label=document.createElement('div');
+  label.className='station-label transfer-name is-transfer';
+  label.textContent=name;
+  Object.assign(label.style,{left:`${x/1352*100}%`,top:`${y/1080*100}%`});
+  stationLayer.appendChild(label);
+  placeTransferLabel(label);
  }
  mapRegion.classList.toggle('has-active-route',routePoints.length>1);
  document.getElementById('travel-route').textContent=routePoints.length?'路線図上の経路を強調表示中':'';

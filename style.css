@@ -167,3 +167,45 @@
 .route-marker-transfer { animation: transferMarkerBlink 1.1s ease-in-out infinite; }
 @keyframes transferMarkerBlink { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
 @media (prefers-reduced-motion: reduce) { .route-marker-transfer { animation: none; } }
+
+/* 乗換駅はラベルを強調し、地図にない駅は印のそばにラベルを足す。 */
+.station-label.is-transfer {
+  outline: .34cqh solid #f5a400;
+  outline-offset: .2cqh;
+  background: #fffbe6;
+  box-shadow: 0 0 1.1cqh rgba(245, 164, 0, .7);
+  font-size: 1.95cqh !important;
+}
+.station-label.is-transfer:not(.transfer-name) {
+  left: var(--station-center-x) !important;
+  width: max-content !important;
+  min-width: var(--station-width);
+  height: auto !important;
+  min-height: 3.5cqh;
+  padding: .5cqh 1cqh;
+  transform: translateX(-50%) scale(1.04);
+  z-index: 2;
+}
+.station-label.transfer-name {
+  --transfer-gap: 1.7cqh;
+  width: auto;
+  min-height: 3.5cqh;
+  padding: .5cqh 1cqh;
+  z-index: 3;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - var(--transfer-gap)));
+}
+.station-label.transfer-name[data-side="below"] { transform: translate(-50%, var(--transfer-gap)); }
+.station-label.transfer-name[data-side="right"] { transform: translate(var(--transfer-gap), -50%); }
+.station-label.transfer-name[data-side="left"] { transform: translate(calc(-100% - var(--transfer-gap)), -50%); }
+.station-label.transfer-name[data-side="above-right"] { transform: translate(calc(var(--transfer-gap) * .7), calc(-100% - var(--transfer-gap) * .7)); }
+.station-label.transfer-name[data-side="above-left"] { transform: translate(calc(-100% - var(--transfer-gap) * .7), calc(-100% - var(--transfer-gap) * .7)); }
+.station-label.transfer-name[data-side="below-right"] { transform: translate(calc(var(--transfer-gap) * .7), calc(var(--transfer-gap) * .7)); }
+.station-label.transfer-name[data-side="below-left"] { transform: translate(calc(-100% - var(--transfer-gap) * .7), calc(var(--transfer-gap) * .7)); }
+
+/* 選んだ駅は、ラベルを大きくして目立たせる。 */
+.station-label.is-selected:not(.destination) {
+  min-height: 3.9cqh;
+  padding: .62cqh 1.15cqh;
+  font-size: 2.6cqh !important;
+}
