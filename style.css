@@ -76,12 +76,14 @@
 .origin-line strong{letter-spacing:0;margin:0;font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;font-weight:700}
 .origin-line span,.destination-line,.destination-line strong{font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;font-weight:500}
 .time-line{position:absolute;inset:0;height:100%;margin:0;display:block;font-family:"Noto Sans","Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",sans-serif;color:#000;white-space:nowrap}
-.time-approx,.time-minutes,#travel-time-number{position:absolute;display:block;margin:0;line-height:normal}
-.time-approx{left:4.537037cqh;top:59.259259cqh;font-size:6.481481cqh;font-weight:400;line-height:8.796296cqh}
-#travel-time-number{left:11.111111cqh;top:50.648148cqh;font-family:"Damascus","Helvetica","Arial",sans-serif;font-size:26.851852cqh;font-weight:700;line-height:27.407407cqh;letter-spacing:.833333cqh;font-kerning:none;font-variant-numeric:normal}
+/* 約・数字・分は、フォントが変わっても同じ基準線にそろえる。 */
+.time-approx,.time-minutes,#travel-time-number{position:absolute;top:40cqh;display:flex;align-items:baseline;margin:0;line-height:1}
+.time-approx::before,.time-minutes::before,#travel-time-number::before{content:"";height:26.42cqh}
+.time-approx{left:4.537037cqh;font-size:6.481481cqh;font-weight:400}
+#travel-time-number{left:11.111111cqh;font-family:"Damascus","Helvetica","Arial",sans-serif;font-size:26.851852cqh;font-weight:700;letter-spacing:.833333cqh;font-kerning:none;font-variant-numeric:normal}
 #travel-time-number.is-single-digit{left:26.447222cqh;transform:translateX(-50%);font-size:26.851852cqh;letter-spacing:0}
-#travel-time-number.is-wide-number{left:11.111111cqh;top:50.648148cqh;transform:none;font-size:26.851852cqh;letter-spacing:.833333cqh}
-.time-minutes{left:41.481481cqh;top:59.240741cqh;font-size:6.481481cqh;font-weight:400;line-height:8.796296cqh}
+#travel-time-number.is-wide-number{left:11.111111cqh;transform:none;font-size:26.851852cqh;letter-spacing:.833333cqh}
+.time-minutes{left:41.481481cqh;font-size:6.481481cqh;font-weight:400}
 .time-line.is-unregistered .time-approx,.time-line.is-unregistered .time-minutes{display:none}
 
 
