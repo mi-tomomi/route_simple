@@ -89,7 +89,14 @@ function updateTravelDisplay(){
  stationLayer.querySelectorAll('.transfer-name').forEach(label=>label.remove());
  stationLayer.querySelectorAll('.is-transfer').forEach(label=>label.classList.remove('is-transfer'));
  const transferMarks=[];
- const routePoints=journey?findRoutePath(selectedStationName,destinationNames[selectedDestinationId],journey.lines,journey.transferPoints,journey.originPoint):[];
+ let routePoints=journey?findRoutePath(selectedStationName,destinationNames[selectedDestinationId],journey.lines,journey.transferPoints,journey.originPoint):[];
+ // 経路の始点が駅ラベルから離れているときは、駅までつなぐ。
+ const origin=data.stations.find(s=>s.name===selectedStationName);
+ if(routePoints.length&&!journey.originPoint){
+  const [start]=routePoints;
+  const outside=start.x<origin.x-8||start.x>origin.x+origin.width+8||start.y<origin.y-8||start.y>origin.y+origin.height+8;
+  if(outside)routePoints=[{x:origin.x+origin.width/2,y:origin.y+origin.height/2,transferFromPrevious:0},...routePoints];
+ }
  if(routePoints.length>1){
   const pathData=routePoints.map((p,i)=>`${i?'L':'M'}${p.x} ${p.y}`).join(' ');
   for(const className of ['route-path-halo','route-path','route-path-sparkle']){
