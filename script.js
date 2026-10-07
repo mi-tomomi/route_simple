@@ -16,6 +16,24 @@ const position = name => {
 
 // 経路ごとに登録した路線と乗換地点をもとに、強調する経路を生成する。
 const findRoutePath=window.RouteEngine.createRouteFinder({...data,stations:data.stations.map(s=>({...s,id:s.name}))});
+// 駅ラベルの位置を、路線図の座標（1352×1080）で返す。
+function stationLabelBoxes(){
+ const bounds=mapRegion.getBoundingClientRect();
+ const scale=1352/bounds.width;
+ return [...stationLayer.querySelectorAll('.station-label')].map(label=>{
+  const r=label.getBoundingClientRect();
+  return {left:(r.left-bounds.left)*scale,right:(r.right-bounds.left)*scale,top:(r.top-bounds.top)*scale,bottom:(r.bottom-bounds.top)*scale};
+ });
+}
+// 乗換地点の印が駅ラベルに隠れるときは、経路に沿ってラベルの外までずらす。
+function markClearOfLabels(mark,routePoints,boxes){
+ const margin=15;
+ const isClear=p=>!boxes.some(b=>p.x>b.left-margin&&p.x<b.right+margin&&p.y>b.top-margin&&p.y<b.bottom+margin);
+ if(isClear(mark))return mark;
+ const distanceTo=p=>Math.hypot(p.x-mark.x,p.y-mark.y);
+ const nearest=routePoints.slice(Math.max(0,mark.order-40),mark.order+40).filter(isClear).sort((a,b)=>distanceTo(a)-distanceTo(b))[0];
+ return nearest?{...mark,x:nearest.x,y:nearest.y}:mark;
+}
 function updateTravelDisplay(){
  const record=data.times[selectedStationName];
  const time=record?.[selectedDestinationId];
@@ -31,6 +49,10 @@ function updateTravelDisplay(){
  timeNumber.classList.toggle('is-wide-number',timeDigits.length>1&&timeDigits[0]!=='1');
  document.querySelector('.time-line').classList.toggle('is-unregistered',time===undefined);
  document.getElementById('travel-status').textContent=time===undefined?'この駅の所要時間は未登録です':'';
+ document.querySelectorAll('.station-label').forEach(b=>{
+  const active=b.dataset.destination?b.dataset.destination===selectedDestinationId:b.dataset.name===selectedStationName;
+  b.classList.toggle('is-selected',active);b.setAttribute('aria-pressed',String(active));
+ });
  routeGroup.replaceChildren();
  const routePoints=journey?findRoutePath(selectedStationName,destinationNames[selectedDestinationId],journey.lines,journey.transferPoints,journey.originPoint):[];
  if(routePoints.length>1){
@@ -41,13 +63,18 @@ function updateTravelDisplay(){
    path.setAttribute('pathLength','100');
    routeGroup.appendChild(path);
   }
+  const labelBoxes=stationLabelBoxes();
   const markerPoints=[{...routePoints[0],kind:'origin'}];
   for(let i=1;i<routePoints.length;i++){
    if(routePoints[i].transferFromPrevious){
-    markerPoints.push({x:(routePoints[i-1].x+routePoints[i].x)/2,y:(routePoints[i-1].y+routePoints[i].y)/2,kind:'transfer'});
+    markerPoints.push(markClearOfLabels({x:(routePoints[i-1].x+routePoints[i].x)/2,y:(routePoints[i-1].y+routePoints[i].y)/2,kind:'transfer',order:i},routePoints,labelBoxes));
    }
   }
-  for(const [x,y] of journey.extraTransferPoints??[])markerPoints.push({x,y,kind:'transfer'});
+  for(const [x,y] of journey.extraTransferPoints??[]){
+   const distanceTo=p=>Math.hypot(p.x-x,p.y-y);
+   const order=routePoints.reduce((nearest,p,i)=>distanceTo(p)<distanceTo(routePoints[nearest])?i:nearest,0);
+   markerPoints.push(markClearOfLabels({x,y,kind:'transfer',order},routePoints,labelBoxes));
+  }
   markerPoints.push({...routePoints.at(-1),kind:'destination'});
   for(const point of markerPoints){
    const marker=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -66,10 +93,6 @@ function updateTravelDisplay(){
  document.getElementById('transfer-count').textContent=journey?.transfers??'—';
 
  select.value=selectedStationName;
- document.querySelectorAll('.station-label').forEach(b=>{
-  const active=b.dataset.destination?b.dataset.destination===selectedDestinationId:b.dataset.name===selectedStationName;
-  b.classList.toggle('is-selected',active);b.setAttribute('aria-pressed',String(active));
- });
 }
 function selectStation(name){selectedStationName=name;updateTravelDisplay();}
 for(const s of data.stations){
